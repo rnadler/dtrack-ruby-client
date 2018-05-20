@@ -1,0 +1,147 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Data Tracker API
+  description: An API for the Data Tracker Application
+  termsOfService: 'http://helloreverb.com/terms/'
+  contact:
+    name: Bob
+    email: robert.nadler@gmail.com
+    url: 'http://bobonmedicaldevicesoftware.com/blog/'
+  license:
+    name: MIT
+    url: 'http://opensource.org/licenses/MIT'
+host: 'localhost:8080'
+schemes:
+  - http
+  - https
+securityDefinitions:
+  basicAuth:
+    type: basic
+    description: HTTP Basic Authentication. Works over `HTTP` and `HTTPS`
+basePath: /api/v1
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /entries:
+    get:
+      description: Returns all entries for the authenticated user
+      operationId: findEntries
+      security:
+        - basicAuth: []
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: entry response
+          schema:
+            $ref: '#/definitions/entry_array'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+    post:
+      description: Creates a new entry for a user.
+      operationId: addEntry
+      security:
+        - basicAuth: []
+      produces:
+        - application/json
+      parameters:
+        - name: entry
+          in: body
+          description: entry to add
+          required: true
+          schema:
+            $ref: '#/definitions/entry'
+      responses:
+        '200':
+          description: entry response
+          schema:
+            $ref: '#/definitions/entry'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+  '/entries/{id}':
+    get:
+      description: Returns a user owned entry based on a single ID.
+      operationId: findentryById
+      security:
+        - basicAuth: []
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of entry to fetch
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: entry response
+          schema:
+            $ref: '#/definitions/entry'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+    delete:
+      description: deletes a single entry based on the ID supplied
+      operationId: deleteEntry
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of entry to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '204':
+          description: entry deleted
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+definitions:
+  entry:
+    type: object
+    required:
+      - type
+      - value
+      - createdDateTime
+    properties:
+      id:
+        type: string
+      user:
+        type: string
+      type:
+        type: string
+      value:
+        type: string
+      units:
+        type: string
+      createdDateTime:
+        type: string
+      doubleValue:
+        type: number
+  entry_array:
+    type: array
+    items:
+      $ref: '#/definitions/entry'
+  errorModel:
+    type: object
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
